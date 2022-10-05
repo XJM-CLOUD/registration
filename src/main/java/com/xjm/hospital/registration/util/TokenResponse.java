@@ -1,9 +1,9 @@
 package com.xjm.hospital.registration.util;
 
 
+import com.xjm.hospital.registration.security.vo.MyUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ public class TokenResponse {
 
     public void getResponse(HttpServletResponse response) {
         //获取用户登录信息
-        UserDetails user = RedisUtils.getUser();
+        MyUserDetails user = UserUtil.getCurrentLoginUser();
         // 获取Token
         Object token = redisUtil.get(user.getUsername() + "token");
         if (StringUtils.isNotBlank((String) token)) {

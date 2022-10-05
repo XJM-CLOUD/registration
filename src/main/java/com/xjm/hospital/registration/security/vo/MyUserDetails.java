@@ -16,7 +16,10 @@ import java.util.Collection;
  */
 public class MyUserDetails implements UserDetails {
 
-    @Schema(name = "username", description = "用户账户")
+    @Schema(name = "userid", description = "用户ID")
+    private Long userid;
+
+    @Schema(name = "username", description = "用户名")
     private String username;
 
     @Schema(name = "password", description = "用户密码")
@@ -28,15 +31,20 @@ public class MyUserDetails implements UserDetails {
     @Schema(name = "token", description = "用户token值")
     private String token;
 
-    public MyUserDetails(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public MyUserDetails(String username, String password, String roles) {
+    public MyUserDetails(Long userid, String username, String password, String roles, String token) {
+        this.userid = userid;
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.token = token;
+    }
+
+    public Long getUserid() {
+        return userid;
+    }
+
+    public void setUserid(Long userid) {
+        this.userid = userid;
     }
 
     public void setUsername(String username) {

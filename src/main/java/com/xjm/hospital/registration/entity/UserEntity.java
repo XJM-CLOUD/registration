@@ -32,6 +32,9 @@ public class UserEntity {
     @Column(name = "roles")
     private String roles;
     @Basic
+    @Column(name = "avatar")
+    private String avatar;
+    @Basic
     @Column(name = "enable_status")
     private Integer enableStatus;
     @Basic

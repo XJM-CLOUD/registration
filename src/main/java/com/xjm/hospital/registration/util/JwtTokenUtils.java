@@ -105,7 +105,7 @@ public class JwtTokenUtils {
      * @return
      */
     public static String getUserByJwtToken(HttpServletRequest request) {
-        String jwtToken = RequestGetTokenUtil.getToken(request);
+        String jwtToken = UserUtil.getToken(request);
         if(!StringUtils.hasText(jwtToken)) {
             return "";
         }

@@ -3,7 +3,7 @@ package com.xjm.hospital.registration.security.strategy;
 
 import cn.hutool.json.JSONUtil;
 import com.xjm.hospital.registration.resp.ResponseResult;
-import com.xjm.hospital.registration.resp.ResultEnum;
+import com.xjm.hospital.registration.resp.ErrorCodeEnum;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class CustomizeSessionInformationExpiredStrategy implements SessionInform
         HttpServletResponse httpServletResponse = sessionInformationExpiredEvent.getResponse();
         httpServletResponse.setHeader("Content-type", "application/json;charset=UTF-8");
         httpServletResponse.getWriter().write(JSONUtil.toJsonStr(
-                ResponseResult.failed(ResultEnum.USER_NO_ACCESS.getMessage(), ResultEnum.USER_NO_ACCESS.getCode())));
+                ResponseResult.failed(ErrorCodeEnum.USER_NO_ACCESS)));
 
     }
 }

@@ -3,12 +3,12 @@ package com.xjm.hospital.registration.security.filter;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import com.xjm.hospital.registration.resp.ResponseResult;
-import com.xjm.hospital.registration.resp.ResultEnum;
+import com.xjm.hospital.registration.resp.ErrorCodeEnum;
 import com.xjm.hospital.registration.security.UserDetailsServiceImpl;
 import com.xjm.hospital.registration.util.DateUtil;
 import com.xjm.hospital.registration.util.JwtTokenUtils;
 import com.xjm.hospital.registration.util.RedisUtils;
-import com.xjm.hospital.registration.util.RequestGetTokenUtil;
+import com.xjm.hospital.registration.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Description: token认证过滤器
@@ -48,18 +47,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println(1);
-        String authToken = RequestGetTokenUtil.getToken(request);
+        String authToken = UserUtil.getToken(request);
         response.setHeader("Content-type", "application/json;charset=UTF-8");
         if (null != authToken) {
             //判断token是否有效
             if (JwtTokenUtils.isTokenExpired(authToken)) {
-                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.LOGIN_IS_OVERDUE.getMessage(), ResultEnum.LOGIN_IS_OVERDUE.getCode())));
+                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.LOGIN_IS_OVERDUE)));
                 return;
             }
             // 通过token获取用户名
             String username = JwtTokenUtils.parseToken(authToken);
             if (StringUtils.isBlank(username)) {
-                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.LOGIN_IS_OVERDUE.getMessage(), ResultEnum.LOGIN_IS_OVERDUE.getCode())));
+                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.LOGIN_IS_OVERDUE)));
                 return;
             }
             String ip = MapUtil.getStr(JwtTokenUtils.getClaims(authToken), "ip");
@@ -77,7 +76,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                     if (DateUtil.compareDate(currentTime, tokenValidTime) && !DateUtil.compareDate(tokenValidTime, expirationTime)) {
                         //超过有效期，不予刷新
                         log.info("{}已超过有效期，不予刷新", authToken);
-                        response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.success(null, ResultEnum.LOGIN_IS_OVERDUE.getCode(), ResultEnum.LOGIN_IS_OVERDUE.getMessage())));
+                        response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.LOGIN_IS_OVERDUE)));
                         return;
                     } else {
                         //仍在有效时间内,判断是否到达刷新时间，如果到达刷新时间
@@ -104,7 +103,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 }
             } else {
                 log.info("{}redis登录信息不存在", username);
-                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.LOGIN_IS_OVERDUE.getMessage(), ResultEnum.LOGIN_IS_OVERDUE.getCode())));
+                response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.LOGIN_IS_OVERDUE)));
                 return;
             }
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

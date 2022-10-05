@@ -11,7 +11,8 @@ import lombok.Getter;
  * @version: 1.0.0
  */
 @Getter
-public enum ResultEnum {
+public enum ErrorCodeEnum {
+
     /**
      * 请求成功
      */
@@ -25,10 +26,6 @@ public enum ResultEnum {
      */
     USER_NEED_AUTHORITIES(201,"用户未登录"),
     /**
-     * 用户登录成功
-     */
-    USER_LOGIN_SUCCESS(203,"login success!"),
-    /**
      * 用户账号或密码错误
      */
     USER_LOGIN_FAILED(202,"用户账号或密码错误"),
@@ -37,9 +34,9 @@ public enum ResultEnum {
      */
     USER_NOT_FIND(206,"该用户不存在或被禁用请联系管理员"),
     /**
-     * 用户登出成功
+     * 用户已被锁定
      */
-    USER_LOGOUT_SUCCESS(205,"登出成功!"),
+    USER_LOCKED_FIND(207,"用户已被锁定"),
     /**
      * 用户无权访问
      */
@@ -60,10 +57,6 @@ public enum ResultEnum {
      * 验证码错误
      */
     ERROR_CODE(50003,"验证码错误"),
-    /**
-     * 邮件发送成功
-     */
-    SEND_EMAIL(205,"邮件发送成功！")
 
     ;
     @Schema(name = "code",description = "返回code")
@@ -71,7 +64,7 @@ public enum ResultEnum {
     @Schema(name = "message",description = "返回信息")
     private final String message;
 
-    ResultEnum(Integer code, String message) {
+    ErrorCodeEnum(Integer code, String message) {
         this.code = code;
         this.message = message;
     }

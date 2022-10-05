@@ -1,9 +1,11 @@
 package com.xjm.hospital.registration.security.filter;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.xjm.hospital.registration.resp.ResponseResult;
-import com.xjm.hospital.registration.resp.ResultEnum;
+import com.xjm.hospital.registration.resp.ErrorCodeConst;
+import com.xjm.hospital.registration.resp.ErrorCodeEnum;
 import com.xjm.hospital.registration.security.vo.MyUserDetails;
 import com.xjm.hospital.registration.util.AccessAddressUtils;
 import com.xjm.hospital.registration.util.JwtTokenUtils;
@@ -27,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,14 +67,9 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
             String password = jsonObject.getStr("password");
             // 获取ip地址
             String ip = AccessAddressUtils.getIpAddress(req);
+            username = username != null ? username.trim() : "";
+            password = password != null ? password : "";
 
-            if (username == null) {
-                username = "";
-            }
-            if (password == null) {
-                password = "";
-            }
-            username = username.trim();
             UsernamePasswordAuthenticationToken authRequest =
                     new UsernamePasswordAuthenticationToken(username, password);
 
@@ -101,7 +99,8 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 将token赋值到用户对象类
         userDetails.setToken(jwtToken);
 
-        map.put("roles", userDetails.getRoles());
+        List<String> roles = StrUtil.split(userDetails.getRoles(), StrUtil.C_COMMA);
+        map.put("roles", roles);
         //获取请求的ip地址
         redisUtil.setTokenRefresh(userDetails.getUsername(), userDetails.getToken(), ip);
 
@@ -109,7 +108,7 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
         res.setHeader("Content-type", "application/json;charset=UTF-8");
         map.put("token", jwtToken);
         redisUtil.set(userDetails.getUsername() + "token", jwtToken);
-        res.getWriter().write(JSONUtil.toJsonStr(ResponseResult.success(map, ResultEnum.SUCCESS.getCode(), ResultEnum.USER_LOGIN_SUCCESS.getMessage())));
+        res.getWriter().write(JSONUtil.toJsonStr(ResponseResult.success(ErrorCodeConst.USER_LOGIN_SUCCESS_MSG, map)));
     }
 
     /**
@@ -120,13 +119,13 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
                                               AuthenticationException e) throws IOException {
         response.setHeader("Content-type", "application/json;charset=UTF-8");
         if (e instanceof UsernameNotFoundException) {
-            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.USER_NOT_FIND.getMessage(), ResultEnum.USER_NOT_FIND.getCode())));
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.USER_NOT_FIND)));
         } else if (e instanceof BadCredentialsException) {
-            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.USER_LOGIN_FAILED.getMessage(), ResultEnum.USER_LOGIN_FAILED.getCode())));
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.USER_LOGIN_FAILED)));
         } else if (e instanceof LockedException) {
-            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed("用户已被锁定", 207)));
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.USER_LOCKED_FIND)));
         } else {
-            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ResultEnum.USER_LOGIN_FAILED.getMessage(), ResultEnum.USER_LOGIN_FAILED.getCode())));
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseResult.failed(ErrorCodeEnum.USER_LOGIN_FAILED)));
         }
     }
 

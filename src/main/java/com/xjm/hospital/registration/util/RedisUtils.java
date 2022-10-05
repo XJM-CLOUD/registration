@@ -150,15 +150,5 @@ public class RedisUtils {
         return redisTemplate.opsForHash().entries(key);
     }
 
-    /**
-     * 获取用户登录信息
-     */
-    public static UserDetails getUser() {
-        // 获取当前用户
-        UserDetails userDetails
-                = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-        return userDetails;
-    }
 
 }

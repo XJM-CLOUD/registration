@@ -22,6 +22,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Optional<UserEntity> userEntity = repository.findByUserName(username);
         UserEntity entity = userEntity.orElseThrow(() -> new UsernameNotFoundException("用户名不存在"));
 
-        return new MyUserDetails(entity.getUserName(), entity.getUserPwd(), entity.getRoles());
+        return new MyUserDetails(entity.getUserId(), entity.getUserName(), entity.getUserPwd(), entity.getRoles(), null);
     }
 }
