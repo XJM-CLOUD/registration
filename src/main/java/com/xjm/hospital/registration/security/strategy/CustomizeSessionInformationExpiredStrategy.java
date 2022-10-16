@@ -12,11 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Description: 会话信息过期策略
+ * 会话信息过期策略
  *
- * @author: gremlin
- * Date: 2022/6/10 10:55
- * @version: 1.0.0
+ * @author xiangjunming
+ * @date 2022/10/16
  */
 @Component
 public class CustomizeSessionInformationExpiredStrategy implements SessionInformationExpiredStrategy {

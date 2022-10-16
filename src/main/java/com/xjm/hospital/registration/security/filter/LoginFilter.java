@@ -1,14 +1,17 @@
 package com.xjm.hospital.registration.security.filter;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.xjm.hospital.registration.resp.ResponseResult;
 import com.xjm.hospital.registration.resp.ErrorCodeConst;
 import com.xjm.hospital.registration.resp.ErrorCodeEnum;
+import com.xjm.hospital.registration.resp.ResponseResult;
+import com.xjm.hospital.registration.security.service.TokenService;
 import com.xjm.hospital.registration.security.vo.MyUserDetails;
 import com.xjm.hospital.registration.util.AccessAddressUtils;
-import com.xjm.hospital.registration.util.JwtTokenUtils;
+import com.xjm.hospital.registration.util.MyTokenUtils;
 import com.xjm.hospital.registration.util.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,21 +36,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Description: token登录过滤器
+ * token登录过滤器
  *
- * @author: gremlin
- * Date: 2022/6/10 10:55
- * @version: 1.0.0
+ * @author xiangjunming
+ * @date 2022/10/16
  */
 @Slf4j
-public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final RedisUtils redisUtil;
+    private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
 
-    public TokenLoginFilter(AuthenticationManager authenticationManager, RedisUtils redisUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, TokenService tokenService) {
         this.authenticationManager = authenticationManager;
-        this.redisUtil = redisUtil;
+        this.tokenService = tokenService;
     }
 
     /**
@@ -56,7 +58,6 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
             throws AuthenticationException {
-        System.out.println(2);
         //只允许post请求
         if ("POST".equals(req.getMethod())) {
             // 获取请求体
@@ -65,15 +66,14 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
             JSONObject jsonObject = JSONUtil.parseObj(body);
             String username = jsonObject.getStr("username");
             String password = jsonObject.getStr("password");
-            // 获取ip地址
-            String ip = AccessAddressUtils.getIpAddress(req);
             username = username != null ? username.trim() : "";
             password = password != null ? password : "";
-
             UsernamePasswordAuthenticationToken authRequest =
                     new UsernamePasswordAuthenticationToken(username, password);
 
-            //插入用户登录成功日志
+            // 获取ip地址
+            //String ip = AccessAddressUtils.getIpAddress(req);
+            // 插入用户登录成功日志
             //logService.insertLog(ip, "1", "登入", username);
             return authenticationManager.authenticate(authRequest);
         }
@@ -86,29 +86,14 @@ public class TokenLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
                                             Authentication auth) throws IOException {
-        System.out.println(4);
-        Map<String, Object> map = new HashMap<>();
+        res.setHeader("Content-type", "application/json;charset=UTF-8");
         // 获取IP地址
-        String ip = AccessAddressUtils.getIpAddress(req);
-        map.put("ip", ip);
+        String ip = AccessAddressUtils.getIpAddress();
+        Map<String, Object> payloads = MapUtil.of("ip", ip);
         // 获取当前用户信息
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
-
-        // 通过jwt生成jwtToken
-        String jwtToken = JwtTokenUtils.generateToken(userDetails.getUsername(), map);
-        // 将token赋值到用户对象类
-        userDetails.setToken(jwtToken);
-
-        List<String> roles = StrUtil.split(userDetails.getRoles(), StrUtil.C_COMMA);
-        map.put("roles", roles);
-        //获取请求的ip地址
-        redisUtil.setTokenRefresh(userDetails.getUsername(), userDetails.getToken(), ip);
-
-        log.info("用户{}登录成功，信息已保存至redis", userDetails.getUsername());
-        res.setHeader("Content-type", "application/json;charset=UTF-8");
-        map.put("token", jwtToken);
-        redisUtil.set(userDetails.getUsername() + "token", jwtToken);
-        res.getWriter().write(JSONUtil.toJsonStr(ResponseResult.success(ErrorCodeConst.USER_LOGIN_SUCCESS_MSG, map)));
+        Map<String, Object> result = tokenService.generateToken(userDetails, payloads);
+        res.getWriter().write(JSONUtil.toJsonStr(ResponseResult.success(ErrorCodeConst.USER_LOGIN_SUCCESS_MSG, result)));
     }
 
     /**

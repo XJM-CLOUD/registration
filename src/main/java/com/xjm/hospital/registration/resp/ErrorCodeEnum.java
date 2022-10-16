@@ -20,7 +20,7 @@ public enum ErrorCodeEnum {
     /**
      * 请求失败
      */
-    FAILURE(102,"请求失败"),
+    FAILURE(99,"请求失败"),
     /**
      * 用户未登录
      */
@@ -32,19 +32,35 @@ public enum ErrorCodeEnum {
     /**
      * 用户不存在
      */
-    USER_NOT_FIND(206,"该用户不存在或被禁用请联系管理员"),
+    USER_NOT_FIND(203,"该用户不存在或被禁用请联系管理员"),
     /**
      * 用户已被锁定
      */
-    USER_LOCKED_FIND(207,"用户已被锁定"),
+    USER_LOCKED_FIND(204,"用户已被锁定"),
     /**
      * 用户无权访问
      */
-    USER_NO_ACCESS(301,"用户无权访问"),
+    USER_NO_ACCESS(205,"用户无权访问"),
     /**
-     * 您的操作已超时，请重新登录
+     * access_token不能为空
      */
-    LOGIN_IS_OVERDUE(204,"您的操作已超时，请重新登录"),
+    ACCESS_TOKEN_IS_NULL(206,"access_token不能为空"),
+    /**
+     * refresh_token不能为空
+     */
+    REFRESH_TOKEN_IS_NULL(207,"refresh_token不能为空"),
+    /**
+     * access_token类型错误
+     */
+    ACCESS_TOKEN_NOT_TYPE(208,"access_token类型错误"),
+    /**
+     * accessToken已过期, 请重新获取
+     */
+    ACCESS_TOKEN_IS_OVERDUE(209,"access_token已过期, 请重新获取"),
+    /**
+     * refresh已过期，请重新登录
+     */
+    REFRESH_TOKEN_IS_OVERDUE(210,"refresh_token已过期，请重新登录"),
     /**
      * 手机号码不正确
      */

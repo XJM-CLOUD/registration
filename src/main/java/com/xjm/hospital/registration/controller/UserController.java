@@ -8,8 +8,7 @@ import com.xjm.hospital.registration.query.UserQuery;
 import com.xjm.hospital.registration.repository.UserEntityRepository;
 import com.xjm.hospital.registration.resp.ErrorCodeEnum;
 import com.xjm.hospital.registration.resp.ResponseResult;
-import com.xjm.hospital.registration.util.JwtTokenUtils;
-import com.xjm.hospital.registration.util.UserUtil;
+import com.xjm.hospital.registration.util.MyTokenUtils;
 import com.xjm.hospital.registration.vo.PageRespVO;
 import com.xjm.hospital.registration.vo.UserInfoRespVO;
 import org.springframework.data.domain.Page;
@@ -63,8 +62,7 @@ public class UserController {
 
     @GetMapping("getInfo")
     public ResponseResult<UserInfoRespVO> getInfo(HttpServletRequest request) {
-        String authToken = UserUtil.getToken(request);
-        String username = JwtTokenUtils.parseToken(authToken);
+        String username = MyTokenUtils.getSubject();
         Optional<UserEntity> userOptional = userEntityRepository.findByUserName(username);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
@@ -98,6 +96,9 @@ public class UserController {
             }
             if (ObjectUtil.isNotEmpty(user.getUserPwd())) {
                 userEntity.setUserPwd(passwordEncoder.encode(user.getUserPwd()));
+            }
+            if (ObjectUtil.isNotEmpty(user.getAvatar())) {
+                userEntity.setAvatar(user.getAvatar());
             }
         } else {
             // 新增

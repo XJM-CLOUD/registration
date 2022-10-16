@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 
@@ -16,7 +17,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
                 description = "Swagger3使用演示",
                 contact = @Contact(name = "XJM", url = "", email = "330021915@qq.com")
         ),
-//        security = @SecurityRequirement(name = "JWT"),
+        security = @SecurityRequirement(name = "JWT"),
         externalDocs = @ExternalDocumentation(description = "参考文档",
                 url = "https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Annotations"
         )

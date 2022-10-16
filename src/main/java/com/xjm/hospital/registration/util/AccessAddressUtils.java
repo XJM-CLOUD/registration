@@ -1,6 +1,9 @@
 package com.xjm.hospital.registration.util;
 
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -23,6 +26,10 @@ public class AccessAddressUtils {
      * <p>
      * 用户真实IP为： 192.168.1.110
      */
+    public static String getIpAddress() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return getIpAddress(request);
+    }
     public static String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {

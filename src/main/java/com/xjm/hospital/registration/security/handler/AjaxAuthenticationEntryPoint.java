@@ -13,11 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Description: 用户未登录时返回给前端的数据 身份验证入口点
+ * 用户未登录时返回给前端的数据 身份验证入口点
  *
- * @author: gremlin
- * Date: 2022/6/10 17:24
- * @version: 1.0.0
+ * @author xiangjunming
+ * @date 2022/10/16
  */
 @Component
 public class AjaxAuthenticationEntryPoint implements AuthenticationEntryPoint {

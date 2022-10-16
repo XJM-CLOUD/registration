@@ -8,11 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 /**
- * Description: 自定义的实体类，实现于spring security框架的UserDetails
+ * 自定义的实体类，实现于spring security框架的UserDetails
  *
- * @author: gremlin
- * Date: 2022/6/10 13:06
- * @version: 1.0.0
+ * @author xiangjunming
+ * @date 2022/10/16
  */
 public class MyUserDetails implements UserDetails {
 
@@ -28,15 +27,19 @@ public class MyUserDetails implements UserDetails {
     @Schema(name = "roles", description = "用户角色")
     private String roles;
 
-    @Schema(name = "token", description = "用户token值")
-    private String token;
+    @Schema(name = "accessToken", description = "访问令牌")
+    private String accessToken;
 
-    public MyUserDetails(Long userid, String username, String password, String roles, String token) {
+    @Schema(name = "refreshToken", description = "刷新令牌")
+    private String refreshToken;
+
+    public MyUserDetails(Long userid, String username, String password, String roles, String accessToken, String refreshToken) {
         this.userid = userid;
         this.username = username;
         this.password = password;
         this.roles = roles;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 
     public Long getUserid() {
@@ -63,12 +66,20 @@ public class MyUserDetails implements UserDetails {
         return roles;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public String getToken() {
-        return token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.xjm.hospital.registration.config;
 
-import com.xjm.hospital.registration.security.filter.JwtAuthenticationTokenFilter;
-import com.xjm.hospital.registration.security.filter.TokenLoginFilter;
+import com.xjm.hospital.registration.security.UserDetailsServiceImpl;
+import com.xjm.hospital.registration.security.filter.AuthenticationTokenFilter;
+import com.xjm.hospital.registration.security.filter.LoginFilter;
 import com.xjm.hospital.registration.security.handler.AjaxAccessDeniedHandler;
 import com.xjm.hospital.registration.security.handler.AjaxAuthenticationEntryPoint;
 import com.xjm.hospital.registration.security.handler.AjaxLogoutSuccessHandler;
+import com.xjm.hospital.registration.security.service.TokenService;
 import com.xjm.hospital.registration.security.strategy.CustomizeSessionInformationExpiredStrategy;
 import com.xjm.hospital.registration.util.RedisUtils;
 import org.springframework.context.annotation.Bean;
@@ -21,11 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.annotation.Resource;
 
 /**
- * Description:
  *
- * @author: gremlin
- * Date: 2022/7/12 17:10
- * @version: 1.0.0
+ * @author xiangjunming
+ * @date 2022/10/15
  */
 @Configuration
 @EnableWebSecurity
@@ -47,10 +47,9 @@ public class SecurityConfig {
     @Resource
     private CustomizeSessionInformationExpiredStrategy sessionInformationExpiredStrategy;
     @Resource
-    private JwtAuthenticationTokenFilter tokenAuthenticationFilter;
+    private TokenService tokenService;
     @Resource
-    private RedisUtils redisUtils;
-
+    private UserDetailsServiceImpl userDetailsService;
     /**
      * 注入AuthenticationConfiguration
      */
@@ -73,17 +72,16 @@ public class SecurityConfig {
         http.cors().and().csrf().disable();
         http.httpBasic()
                 .authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-                .authorizeRequests()
+                .and().authorizeRequests()
                 //自定义放行接口
                 .antMatchers(
                         "/swagger**/**",
                         "/swagger-ui.html",
                         "/swagger-resources/**",
                         "/webjars/**",
-                        "/v3/**"
+                        "/v3/**",
+                        "/token/refreshToken"
                 ).permitAll()
-
                 .anyRequest()
                 .authenticated()
                 .and().logout().logoutUrl("/logout")
@@ -103,9 +101,9 @@ public class SecurityConfig {
         // 无权访问 JSON 格式的数据
         http.exceptionHandling().accessDeniedHandler(ajaxAccessDeniedHandler);
         // 登录验证
-        http.addFilter(new TokenLoginFilter(authenticationManager(), redisUtils)).httpBasic();
+        http.addFilter(new LoginFilter(authenticationManager(), tokenService)).httpBasic();
         // JWT Filter
-        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new AuthenticationTokenFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

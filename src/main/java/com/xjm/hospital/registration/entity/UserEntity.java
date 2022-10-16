@@ -29,6 +29,9 @@ public class UserEntity {
     @Column(name = "phone")
     private String phone;
     @Basic
+    @Column(name = "type")
+    private Integer type;
+    @Basic
     @Column(name = "roles")
     private String roles;
     @Basic
